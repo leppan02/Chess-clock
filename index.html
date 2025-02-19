@@ -23,12 +23,13 @@
         }
         .clock {
             font-size: 48px;
-            padding: 20px;
+            padding: 40px 20px;
             margin: 10px 0;
             text-align: center;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             transition: background-color 0.3s ease;
+            cursor: pointer;
         }
         .blue {
             color: #fff;
@@ -41,29 +42,42 @@
         .active {
             box-shadow: 0 0 15px rgba(0,0,0,0.3);
         }
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
         #resetBtn {
             font-size: 18px;
             padding: 10px 20px;
-            margin-top: 20px;
             background-color: #2ecc71;
             color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
+        #randomNumber {
+            font-size: 18px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="clock-container">
         <div id="player1Clock" class="clock blue">10:00</div>
+        <div class="controls">
+            <button id="resetBtn">Reset</button>
+            <span id="randomNumber"></span>
+        </div>
         <div id="player2Clock" class="clock red">10:00</div>
     </div>
-    <button id="resetBtn">Reset</button>
 
     <script>
         const player1Clock = document.getElementById('player1Clock');
         const player2Clock = document.getElementById('player2Clock');
         const resetBtn = document.getElementById('resetBtn');
+        const randomNumberDisplay = document.getElementById('randomNumber');
 
         let player1Time = 600; // 10 minutes in seconds
         let player2Time = 600;
@@ -98,8 +112,12 @@
                 activePlayer = 1;
             }
 
+            // Generate and display random number
+            const randomNum = Math.random();
+            randomNumberDisplay.textContent = randomNum.toFixed(2);
+
             // 5% chance to switch colors and add 30 seconds
-            if (Math.random() < 0.05) {
+            if (randomNum < 0.05) {
                 switchColors();
                 if (activePlayer === 1) {
                     player1Time += 30;
@@ -146,6 +164,7 @@
             player1Clock.classList.remove('red');
             player2Clock.classList.add('red');
             player2Clock.classList.remove('blue');
+            randomNumberDisplay.textContent = '';
         }
 
         player1Clock.addEventListener('click', () => {
