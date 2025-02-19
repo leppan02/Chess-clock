@@ -21,10 +21,15 @@
             width: 100%;
             max-width: 300px;
         }
-        .clock {
-            font-size: 48px;
-            padding: 40px 20px;
+        .player-section {
+            display: flex;
+            align-items: center;
             margin: 10px 0;
+        }
+        .clock {
+            flex-grow: 1;
+            font-size: 48px;
+            padding: 20px;
             text-align: center;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -46,16 +51,24 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-top: 20px;
+            margin: 20px 0;
         }
-        #resetBtn {
-            font-size: 18px;
-            padding: 10px 20px;
+        button {
+            font-size: 16px;
+            padding: 10px 15px;
+            margin: 0 5px;
             background-color: #2ecc71;
             color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+        }
+        .flip-btn {
+            background-color: #f39c12;
+        }
+        .flip-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
         #randomNumber {
             font-size: 18px;
@@ -65,18 +78,26 @@
 </head>
 <body>
     <div class="clock-container">
-        <div id="player1Clock" class="clock blue">10:00</div>
+        <div class="player-section">
+            <div id="player1Clock" class="clock blue">10:00</div>
+            <button id="flip1Btn" class="flip-btn">Flip Board</button>
+        </div>
         <div class="controls">
             <button id="resetBtn">Reset</button>
             <span id="randomNumber"></span>
         </div>
-        <div id="player2Clock" class="clock red">10:00</div>
+        <div class="player-section">
+            <div id="player2Clock" class="clock red">10:00</div>
+            <button id="flip2Btn" class="flip-btn">Flip Board</button>
+        </div>
     </div>
 
     <script>
         const player1Clock = document.getElementById('player1Clock');
         const player2Clock = document.getElementById('player2Clock');
         const resetBtn = document.getElementById('resetBtn');
+        const flip1Btn = document.getElementById('flip1Btn');
+        const flip2Btn = document.getElementById('flip2Btn');
         const randomNumberDisplay = document.getElementById('randomNumber');
 
         let player1Time = 600; // 10 minutes in seconds
@@ -97,6 +118,11 @@
             player2Clock.classList.toggle('red');
         }
 
+        function updateFlipButtons() {
+            flip1Btn.disabled = player1Time <= player2Time;
+            flip2Btn.disabled = player2Time <= player1Time;
+        }
+
         function switchPlayer() {
             if (activePlayer === 1) {
                 player1Clock.classList.remove('active');
@@ -111,6 +137,8 @@
                 updateDisplay(player2Time, player2Clock);
                 activePlayer = 1;
             }
+
+            updateFlipButtons();
 
             // Generate and display random number
             const randomNum = Math.random();
@@ -148,6 +176,7 @@
                         alert("Player 1 wins!");
                     }
                 }
+                updateFlipButtons();
             }, 1000);
         }
 
@@ -165,6 +194,31 @@
             player2Clock.classList.add('red');
             player2Clock.classList.remove('blue');
             randomNumberDisplay.textContent = '';
+            updateFlipButtons();
+        }
+
+        function attemptFlip(player) {
+            if ((player === 1 && player1Time < 60) || (player === 2 && player2Time < 60)) {
+                alert("Not enough time to attempt a flip!");
+                return;
+            }
+
+            const flipChance = Math.random();
+            if (flipChance < 0.2) {
+                switchColors();
+                alert("Board flipped successfully!");
+            } else {
+                alert("Flip attempt failed!");
+            }
+
+            if (player === 1) {
+                player1Time -= 60;
+                updateDisplay(player1Time, player1Clock);
+            } else {
+                player2Time -= 60;
+                updateDisplay(player2Time, player2Clock);
+            }
+            updateFlipButtons();
         }
 
         player1Clock.addEventListener('click', () => {
@@ -182,6 +236,8 @@
         });
 
         resetBtn.addEventListener('click', resetClock);
+        flip1Btn.addEventListener('click', () => attemptFlip(1));
+        flip2Btn.addEventListener('click', () => attemptFlip(2));
 
         resetClock(); // Initialize the clock
     </script>
