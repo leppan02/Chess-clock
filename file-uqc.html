@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Clock 10+5 with Surprises</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .clock-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 300px;
+        }
+        .clock {
+            font-size: 48px;
+            padding: 20px;
+            margin: 10px 0;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease;
+        }
+        .blue {
+            color: #fff;
+            background-color: #3498db;
+        }
+        .red {
+            color: #fff;
+            background-color: #e74c3c;
+        }
+        .active {
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        }
+        #resetBtn {
+            font-size: 18px;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="clock-container">
+        <div id="player1Clock" class="clock blue">10:00</div>
+        <div id="player2Clock" class="clock red">10:00</div>
+    </div>
+    <button id="resetBtn">Reset</button>
+
+    <script>
+        const player1Clock = document.getElementById('player1Clock');
+        const player2Clock = document.getElementById('player2Clock');
+        const resetBtn = document.getElementById('resetBtn');
+
+        let player1Time = 600; // 10 minutes in seconds
+        let player2Time = 600;
+        let activePlayer = 1;
+        let timerId;
+
+        function updateDisplay(time, element) {
+            const minutes = Math.floor(time / 60);
+            const seconds = time % 60;
+            element.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function switchColors() {
+            player1Clock.classList.toggle('blue');
+            player1Clock.classList.toggle('red');
+            player2Clock.classList.toggle('blue');
+            player2Clock.classList.toggle('red');
+        }
+
+        function switchPlayer() {
+            if (activePlayer === 1) {
+                player1Clock.classList.remove('active');
+                player2Clock.classList.add('active');
+                player1Time += 5; // Add 5 seconds increment
+                updateDisplay(player1Time, player1Clock);
+                activePlayer = 2;
+            } else {
+                player2Clock.classList.remove('active');
+                player1Clock.classList.add('active');
+                player2Time += 5; // Add 5 seconds increment
+                updateDisplay(player2Time, player2Clock);
+                activePlayer = 1;
+            }
+
+            // 5% chance to switch colors and add 30 seconds
+            if (Math.random() < 0.05) {
+                switchColors();
+                if (activePlayer === 1) {
+                    player1Time += 30;
+                    updateDisplay(player1Time, player1Clock);
+                } else {
+                    player2Time += 30;
+                    updateDisplay(player2Time, player2Clock);
+                }
+                alert("Colors switched! 30 seconds added to the current player.");
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timerId);
+            timerId = setInterval(() => {
+                if (activePlayer === 1) {
+                    player1Time--;
+                    updateDisplay(player1Time, player1Clock);
+                    if (player1Time <= 0) {
+                        clearInterval(timerId);
+                        alert("Player 2 wins!");
+                    }
+                } else {
+                    player2Time--;
+                    updateDisplay(player2Time, player2Clock);
+                    if (player2Time <= 0) {
+                        clearInterval(timerId);
+                        alert("Player 1 wins!");
+                    }
+                }
+            }, 1000);
+        }
+
+        function resetClock() {
+            clearInterval(timerId);
+            player1Time = 600;
+            player2Time = 600;
+            activePlayer = 1;
+            updateDisplay(player1Time, player1Clock);
+            updateDisplay(player2Time, player2Clock);
+            player1Clock.classList.add('active');
+            player2Clock.classList.remove('active');
+            player1Clock.classList.add('blue');
+            player1Clock.classList.remove('red');
+            player2Clock.classList.add('red');
+            player2Clock.classList.remove('blue');
+        }
+
+        player1Clock.addEventListener('click', () => {
+            if (activePlayer === 1) {
+                switchPlayer();
+                startTimer();
+            }
+        });
+
+        player2Clock.addEventListener('click', () => {
+            if (activePlayer === 2) {
+                switchPlayer();
+                startTimer();
+            }
+        });
+
+        resetBtn.addEventListener('click', resetClock);
+
+        resetClock(); // Initialize the clock
+    </script>
+</body>
+</html>
